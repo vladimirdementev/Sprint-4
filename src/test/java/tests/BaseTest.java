@@ -49,10 +49,11 @@ public abstract class BaseTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws InterruptedException {
         logger.info("Завершение теста");
         if (driver != null) {
             driver.quit();
         }
+        Thread.sleep(500);
     }
 }
