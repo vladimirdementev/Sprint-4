@@ -1,9 +1,11 @@
 package tests;
 
 import config.AppConfig;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -32,8 +34,8 @@ public abstract class BaseTest {
     public void setUp() {
         try {
             logger.info("Начинается настройка теста");
-            //WebDriverManager.chromedriver().setup();
-            driver = new FirefoxDriver();
+            WebDriverManager.chromedriver().setup();
+            driver = new ChromeDriver();
             wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             driver.manage().window().maximize();
             driver.get(AppConfig.URL);
