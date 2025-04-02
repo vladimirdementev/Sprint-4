@@ -1,8 +1,8 @@
 package pages;
 
-import model.Order;
-import model.ScooterColorType;
-import model.User;
+import models.Order;
+import models.ScooterColorType;
+import models.User;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
@@ -15,6 +15,11 @@ import org.slf4j.LoggerFactory;
 public class OrderPage extends BasePage {
 
     private static final Logger log = LoggerFactory.getLogger(OrderPage.class);
+
+    /**
+     * Форма заказа
+     */
+    private final By orderForm = By.xpath("//div[contains(@class, 'Order_Form')]");
 
     /**
      * Локатор поля ввода имени
@@ -75,6 +80,10 @@ public class OrderPage extends BasePage {
      * Локатор кнопки "Заказать"
      */
     private final By orderButton = By.xpath(".//div[starts-with(@class,'Order_Buttons')]//button[contains(text(), 'Заказать')]");
+    /**
+     * Локатор модальной формы
+     */
+    private final By orderModalForm = By.xpath("//div[contains(@class, 'Order_Modal')]");
 
     /**
      * Локатор кнопки "Да" в модальном окне
@@ -82,9 +91,14 @@ public class OrderPage extends BasePage {
     private final By yesButton = By.xpath("//button[contains(text(), 'Да')]");
 
     /**
+     * Локатор кнопки "Нет" в модальном окне
+     */
+    private final By noButton = By.xpath("//button[contains(text(), 'Нет')]");
+
+    /**
      * Локатор заголовка успешной формы
      */
-    private final By successModalHeader = By.xpath("//div[text()= 'Заказ оформлен']");
+    private final By successModalHeader = By.xpath("//div[contains(text(),'Заказ оформлен')]");
 
     /**
      * Конструктор страницы заказа
@@ -99,16 +113,14 @@ public class OrderPage extends BasePage {
      * Заполняет основную форму заказа личными данными пользователя
      *
      * @param userData Объект с данными пользователя
-     * @return Текущий экземпляр OrderPage для цепочечного вызова
      */
-    public OrderPage fillOrderForm(User userData) {
+    public void fillOrderForm(User userData) {
         log.debug("Заполняю основную форму заказа");
         waitForVisibility(nameInput).sendKeys(userData.getName());
         waitForVisibility(surnameInput).sendKeys(userData.getSurname());
         waitForVisibility(addressInput).sendKeys(userData.getAddress());
         setMetroStation(userData.getMetroStation());
         waitForVisibility(phoneInput).sendKeys(userData.getPhone());
-        return this;
     }
 
     /**
@@ -125,26 +137,21 @@ public class OrderPage extends BasePage {
 
     /**
      * Нажимает кнопку "Далее" для перехода к следующему этапу заказа
-     *
-     * @return Текущий экземпляр OrderPage для цепочечного вызова
      */
-    public OrderPage clickNextButton() {
+    public void clickNextButton() {
         clickOnElement(nextButton, false);
-        return this;
     }
 
     /**
      * Заполняет форму заказа дополнительной информацией
      *
      * @param orderData Объект с данными заказа
-     * @return Текущий экземпляр OrderPage для цепочечного вызова
      */
-    public OrderPage fillOrderForm2(Order orderData) {
+    public void fillOrderForm2(Order orderData) {
         setDeliveryDate(orderData.getOrderDateAsString());
         selectRentalPeriod(orderData.getPeriod().getDescription());
         selectScooterColor(orderData.getScooterColor());
         setComment(orderData.getComment());
-        return this;
     }
 
     /**
@@ -206,22 +213,16 @@ public class OrderPage extends BasePage {
 
     /**
      * Нажимает кнопку "Заказать"
-     *
-     * @return Текущий экземпляр OrderPage для цепочечного вызова
      */
-    public OrderPage clickOrderButton() {
+    public void clickOrderButton() {
         clickOnElement(orderButton, false);
-        return this;
     }
 
     /**
      * Нажимает кнопку "Да" в модальной форме подтверждения
-     *
-     * @return Текущий экземпляр OrderPage для цепочечного вызова
      */
-    public OrderPage clickYesButton() {
+    public void clickYesButton() {
         clickOnElement(yesButton, false);
-        return this;
     }
 
     /**
@@ -229,15 +230,63 @@ public class OrderPage extends BasePage {
      *
      * @return true если заказ оформлен успешно, false - иначе
      */
-    public boolean isOrderSuccess() {
-        try {
-            String successText = waitForVisibility(successModalHeader).getText().trim();
-            log.debug("Текст успешной формы: {}", successText);
-            return successText.contains("Заказ оформлен");
-        } catch (TimeoutException | NoSuchElementException e) {
-            log.warn("Форма успеха не найдена", e);
+    public boolean isSuccessMessagePresent() {
+        return isElementPresent(successModalHeader);
+    }
+
+    /**
+     * Проверяет отображение первой части формы заказа, полей и кнопок внутри
+     *
+     * @return true, если форма и все элементы внутри отображаются
+     */
+    public boolean isOrderFormPresent() {
+        boolean formContainerPresent = isElementPresent(orderForm);
+
+        if (!formContainerPresent) {
             return false;
         }
+
+        boolean nameFieldPresent = isElementPresent(nameInput);
+        boolean surnameFieldPresent = isElementPresent(surnameInput);
+        boolean addressFieldPresent = isElementPresent(addressInput);
+        boolean phoneFieldPresent = isElementPresent(phoneInput);
+        boolean metroFieldPresent = isElementPresent(metroStationInput);
+        boolean nextButtonPresent = isElementPresent(nextButton);
+
+        return nameFieldPresent && surnameFieldPresent && addressFieldPresent && phoneFieldPresent && metroFieldPresent && nextButtonPresent;
+    }
+
+
+    /**
+     * Проверяет отображение второй части формы заказа, полей и кнопок внутри
+     *
+     * @return true, если форма и все элементы внутри отображаются
+     */
+    public boolean isSecondStepFormPresent() {
+        boolean formContainerPresent = isElementPresent(orderForm);
+
+        if (!formContainerPresent) {
+            return false;
+        }
+
+        boolean deliveryDateFieldPresent = isElementPresent(deliveryDateInput);
+        boolean rentalPeriodFieldPresent = isElementPresent(rentalPeriodDropdown);
+        boolean blackScooterCheckboxPresent = isElementPresent(blackScooterCheckbox);
+        boolean greyScooterCheckboxPresent = isElementPresent(greyScooterCheckbox);
+        boolean commentFieldPresent = isElementPresent(commentInput);
+        boolean orderButtonPresent = isElementPresent(orderButton);
+
+        return deliveryDateFieldPresent && rentalPeriodFieldPresent && blackScooterCheckboxPresent && greyScooterCheckboxPresent && commentFieldPresent && orderButtonPresent;
+    }
+
+    public boolean isModalFormPresent() {
+        boolean modalFormContainer = isElementPresent(orderModalForm);
+
+        if (!modalFormContainer) {
+            return false;
+        }
+
+        return isElementPresent(yesButton) && isElementPresent(noButton);
     }
 }
 

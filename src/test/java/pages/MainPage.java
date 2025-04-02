@@ -1,6 +1,6 @@
 package pages;
 
-import model.ButtonType;
+import models.ButtonPositionType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -55,15 +55,12 @@ public class MainPage extends BasePage {
      *
      * @return список вопросов
      */
-    public List<WebElement> getQuestions() {
-        log.debug("Получаю список вопросов");
+    public WebElement getQuestion(String text) {
+        log.debug("Получаю вопрос");
         WebElement container = waitForVisibility(rootContainer);
         scrollToElement(container);
         List<WebElement> questions = driver.findElements(questionElements);
-        if (questions.isEmpty()) {
-            log.warn("Вопросы не найдены");
-        }
-        return questions;
+        return questions.stream().filter(element -> element.getText().contains(text)).findFirst().orElse(null);
     }
 
     /**
@@ -71,22 +68,12 @@ public class MainPage extends BasePage {
      *
      * @return список ответов
      */
-    public List<WebElement> getAnswers() {
-        waitForVisibility(rootContainer);
+    public WebElement getAnswer(String text) {
+        log.debug("Получаю ответ");
+        WebElement container = waitForVisibility(rootContainer);
+        scrollToElement(container);
         List<WebElement> answers = driver.findElements(answerElements);
-        if (answers.isEmpty()) {
-            log.warn("Ответы не найдены");
-        }
-        return answers;
-    }
-
-    /**
-     * Открывает указанный вопрос
-     *
-     * @param questionLocator локатор вопроса
-     */
-    public void openQuestion(By questionLocator) {
-        clickOnElement(questionLocator, true);
+        return answers.stream().filter(element -> element.getText().contains(text)).findFirst().orElse(null);
     }
 
     /**
@@ -103,30 +90,9 @@ public class MainPage extends BasePage {
         waitLoadAfterClick(webElement);
     }
 
-    /**
-     * Клик на кнопку заказа в верхней части страницы
-     *
-     * @return страницу оформления заказа
-     */
-    private OrderPage clickOrderButtonTop() {
-        clickOnElement(topOrderButton, false);
-        return new OrderPage(driver);
-    }
-
-    /**
-     * Клик на кнопку заказа в нижней части страницы
-     *
-     * @return страницу оформления заказа
-     */
-    private OrderPage clickOrderButtonBottom() {
-        clickOnElement(bottomOrderButton, false);
-        return new OrderPage(driver);
-    }
-
-
-    public OrderPage clickOrderButton(ButtonType buttonType) {
-        log.debug("Кликаю на кнопку заказа: {}", buttonType);
-        switch (buttonType) {
+    public OrderPage clickOrderButton(ButtonPositionType buttonPositionType) {
+        log.debug("Кликаю на кнопку заказа: {}", buttonPositionType);
+        switch (buttonPositionType) {
             case TOP:
                 clickOnElement(topOrderButton, false);
                 break;
@@ -137,5 +103,22 @@ public class MainPage extends BasePage {
                 throw new IllegalArgumentException("Неверный тип кнопки");
         }
         return new OrderPage(driver);
+    }
+
+    public Boolean isOrderButtonPresent(ButtonPositionType buttonPositionType) {
+        log.debug("Проверяю отображение кнопки заказа: {}", buttonPositionType);
+        By buttonLocator = null;
+
+        switch (buttonPositionType) {
+            case TOP:
+                buttonLocator = topOrderButton;
+                break;
+            case BOTTOM:
+                buttonLocator = bottomOrderButton;
+                break;
+        }
+
+        return isElementPresent(buttonLocator);
+
     }
 }

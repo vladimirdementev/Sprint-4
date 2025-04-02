@@ -1,46 +1,30 @@
 package tests;
 
-import config.AppConfig;
-import io.github.bonigarcia.wdm.WebDriverManager;
-import model.*;
-import org.junit.After;
-import org.junit.Before;
+import models.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import pages.MainPage;
 import pages.OrderPage;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.time.Duration;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
-public class OrderFlowTest {
-    private static final Logger logger = LoggerFactory.getLogger(OrderFlowTest.class);
-
-    private WebDriver driver;
-    private WebDriverWait wait;
-    private MainPage mainPage;
+public class OrderFlowTest extends BaseTest {
     private final User user;
     private final Order order;
-    private final ButtonType buttonType;
-    private final String testCaseName;
+    private final ButtonPositionType buttonPositionType;
 
-    public OrderFlowTest(String testCaseName, User user, Order order, ButtonType buttonType) {
-        this.testCaseName = testCaseName;
+    public OrderFlowTest(String testCaseName, User user, Order order, ButtonPositionType buttonPositionType) {
+        super(testCaseName);
         this.user = user;
         this.order = order;
-        this.buttonType = buttonType;
+        this.buttonPositionType = buttonPositionType;
     }
 
     @Parameters(name = "{0}")
@@ -66,44 +50,22 @@ public class OrderFlowTest {
         Order order2 = new Order(user1, LocalDateTime.now().minusDays(2).withHour(15).withMinute(35), PeriodType.FIVE_DAYS, ScooterColorType.GREY, "Позвонить за 15 минут");
 
         return Arrays.asList(new Object[][]{
-                {"Успешный заказ через верхнюю кнопку", user1, order1, ButtonType.TOP},
-                {"Успешный заказ через нижнюю кнопку", user2, order2, ButtonType.BOTTOM}
+                {"Успешный заказ через верхнюю кнопку", user1, order1, ButtonPositionType.TOP},
+                {"Успешный заказ через нижнюю кнопку", user2, order2, ButtonPositionType.BOTTOM}
         });
-    }
-
-    @Before
-    public void setUp() {
-        try {
-            logger.info("Начинается настройка теста");
-            WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver();
-            //driver = new FirefoxDriver();
-            wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            driver.manage().window().maximize();
-            driver.get(AppConfig.URL);
-            mainPage = new MainPage(driver);
-            mainPage.acceptCookie();
-            mainPage.waitForCookieBannerDisappearance();
-        } catch (Exception e) {
-            logger.error("Ошибка при настройке теста", e);
-            throw e;
-        }
-    }
-
-    @After
-    public void tearDown() {
-        logger.info("Тест завершен: {}", testCaseName);
-        if (driver != null) {
-            driver.quit();
-        }
     }
 
     @Test
     public void testOrderFlow() {
         logger.info("Тест начал выполняться: {}", testCaseName);
+
         try {
+            assertTrue("Кнопка заказа не найдена", mainPage.isOrderButtonPresent(buttonPositionType));
+
             logger.debug("Кликаем на кнопку заказа");
-            OrderPage orderPage = mainPage.clickOrderButton(buttonType);
+            OrderPage orderPage = mainPage.clickOrderButton(buttonPositionType);
+
+            assertTrue("Форма заказа не открылась", orderPage.isOrderFormPresent());
 
             logger.debug("Заполняем форму личными данными");
             orderPage.fillOrderForm(user);
@@ -111,14 +73,20 @@ public class OrderFlowTest {
             logger.debug("Переходим к следующему шагу");
             orderPage.clickNextButton();
 
+            assertTrue("Форма второго шага не загрузилась", orderPage.isSecondStepFormPresent());
+
             logger.debug("Заполняем данные заказа");
             orderPage.fillOrderForm2(order);
 
             logger.debug("Подтверждаем заказ");
             orderPage.clickOrderButton();
 
+            assertTrue("Модальное окно подтверждения не появилось", orderPage.isModalFormPresent());
+
             logger.debug("Подтверждаем в модальном окне");
             orderPage.clickYesButton();
+
+            assertTrue("Сообщение об успешном заказе не отобразилось", orderPage.isSuccessMessagePresent());
 
         } catch (Exception e) {
             logger.error("Ошибка при выполнении теста: {}", testCaseName, e);

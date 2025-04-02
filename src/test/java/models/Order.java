@@ -1,4 +1,4 @@
-package model;
+package models;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,11 +17,11 @@ public class Order {
     /**
      * Конструктор для создания объекта заказа
      *
-     * @param user объект пользователя
-     * @param orderDate дата и время заказа
-     * @param period тип периода аренды
+     * @param user         объект пользователя
+     * @param orderDate    дата и время заказа
+     * @param period       тип периода аренды
      * @param scooterColor цвет самоката
-     * @param comment комментарий к заказу
+     * @param comment      комментарий к заказу
      */
     public Order(User user, LocalDateTime orderDate, PeriodType period, ScooterColorType scooterColor, String comment) {
         this.user = user;

@@ -1,4 +1,4 @@
-package model;
+package models;
 
 /**
  * Перечисление доступных цветов самокатов

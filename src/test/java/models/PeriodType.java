@@ -1,4 +1,4 @@
-package model;
+package models;
 
 /**
  * Перечисление возможных периодов аренды
@@ -18,7 +18,7 @@ public enum PeriodType {
     /**
      * Конструктор периода
      *
-     * @param value числовое значение
+     * @param value       числовое значение
      * @param description текстовое описание
      */
     PeriodType(int value, String description) {
