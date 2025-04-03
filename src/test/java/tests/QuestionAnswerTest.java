@@ -7,10 +7,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.WebElement;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import org.assertj.core.api.SoftAssertions;
 
 import static org.junit.Assert.assertEquals;
 
@@ -65,13 +66,25 @@ public class QuestionAnswerTest extends BaseTest {
 
     @Test
     public void testQuestionAnswerText() {
+        SoftAssertions softly = new SoftAssertions();
+
+        logger.info("Проверка отображения всех вопросов");
+        List<WebElement> allQuestions = mainPage.getAllQuestions();
+        softly.assertThat(allQuestions.size()).as("Проверка количества вопросов").isGreaterThan(0);
+
         logger.info("Проверка текста вопроса");
         WebElement question = mainPage.getQuestion(expectedQuestion);
-        assertEquals(expectedQuestion, question.getText());
+        softly.assertThat(question.isDisplayed()).as("Проверка отображения вопроса").isTrue();
+        softly.assertThat(question.getText()).as("Проверка текста вопроса").isEqualTo(expectedQuestion);
+
         logger.info("Открываю вопрос");
         mainPage.openQuestion(question);
-        logger.info("Проверка текста ответа");
+
+        logger.info("Проверка отображения ответа");
         WebElement answer = mainPage.getAnswer(expectedAnswer);
-        assertEquals(expectedAnswer, answer.getText());
+        softly.assertThat(answer.isDisplayed()).as("Проверка отображения ответа").isTrue();
+        softly.assertThat(answer.getText()).as("Проверка текста ответа").isEqualTo(expectedAnswer);
+
+        softly.assertAll();
     }
 }

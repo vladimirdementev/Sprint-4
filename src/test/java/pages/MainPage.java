@@ -50,6 +50,12 @@ public class MainPage extends BasePage {
         PageFactory.initElements(driver, this);
     }
 
+    public List<WebElement> getAllQuestions() {
+        WebElement container = waitForVisibility(rootContainer);
+        scrollToElement(container);
+        return driver.findElements(questionElements);
+    }
+
     /**
      * Переходит к вопросам и получает из них список
      *
