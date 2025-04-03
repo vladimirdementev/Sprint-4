@@ -1,6 +1,5 @@
 package tests;
 
-import models.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -12,8 +11,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class QuestionAnswerTest extends BaseTest {

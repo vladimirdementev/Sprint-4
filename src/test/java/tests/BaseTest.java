@@ -6,7 +6,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +19,6 @@ public abstract class BaseTest {
     protected Logger logger;
     protected String testCaseName;
     protected MainPage mainPage;
-
-    public BaseTest() {
-        logger = LoggerFactory.getLogger(getClass());
-    }
 
     public BaseTest(String testCaseName) {
         logger = LoggerFactory.getLogger(getClass());

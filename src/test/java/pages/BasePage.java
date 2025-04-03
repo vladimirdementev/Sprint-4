@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 
 /**
- * Базовый класс для всех страниц приложения
- * Содержит общие методы для работы с элементами страницы
+ * Базовый класс для всех страниц приложения.
+ * Содержит общие методы для работы с элементами страницы.
  */
 public class BasePage {
     private static final Logger log = LoggerFactory.getLogger(BasePage.class);
